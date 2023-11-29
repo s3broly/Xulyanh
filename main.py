@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 import cv2
+import os
 
 class ImageProcess:
     def __init__(self, image_path):
@@ -8,7 +9,6 @@ class ImageProcess:
         self.img_raw = self.read_image()
 
     def read_image(self):
-        # Đọc ảnh từ đường dẫn và xử lý lỗi nếu không thể đọc được.
         img = cv2.imread(self.image_path)
         if img is None:
             raise ValueError(f"Could not read image from path: {self.image_path}")
@@ -94,7 +94,7 @@ class ImageProcess:
         return Image.fromarray(hist_equalization_result)
 
 def main():
-    image_path = "image.jpg"
+    image_path = input("Nhập đường dẫn của ảnh: ")
 
     try:
         image_processor = ImageProcess(image_path)
