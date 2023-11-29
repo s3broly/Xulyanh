@@ -1,7 +1,6 @@
 from PIL import Image
 import numpy as np
 import cv2
-import os
 
 class ImageProcess:
     def __init__(self, image_path):
@@ -26,11 +25,10 @@ class ImageProcess:
         return Image.fromarray(thresholded_img_array)
 
     def logarithmic_transform(self):
-        
         # Áp dụng biến đổi logarit cho ảnh.
-        
-        img_array = np.log1p(self.img_raw)
-        return Image.fromarray(img_array)
+        max_pixel_value = np.max(self.img_raw)
+        img_array = np.log1p(self.img_raw / max_pixel_value)
+        return Image.fromarray((img_array * 255).astype('uint8'))
 
     def median_transform(self, kernel_size):
         
@@ -78,10 +76,12 @@ class ImageProcess:
         return Image.fromarray(edges)
 
     def otsu_threshold(self):
-        
         # Áp dụng ngưỡng Otsu lên ảnh.
-        
-        _, otsu_img_array = cv2.threshold(self.img_raw, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        if len(self.img_raw.shape) == 3:
+            img_array = cv2.cvtColor(self.img_raw, cv2.COLOR_BGR2GRAY)
+        else:
+            img_array = self.img_raw
+        _, otsu_img_array = cv2.threshold(img_array, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         return Image.fromarray(otsu_img_array)
 
     def histogram_equalizing(self):
@@ -94,40 +94,48 @@ class ImageProcess:
         return Image.fromarray(hist_equalization_result)
 
 def main():
-    image_path = input("Nhập đường dẫn của ảnh: ")
+    image_path = input("Nhập đường dẫn của ảnh (ví dụ: image\8.jpg): ")
+    print("\n")
 
     try:
         image_processor = ImageProcess(image_path)
 
-        negative_image = image_processor.negative_transform()
-        negative_image.show()
+        print("Chọn phương thức:\n")
+        print("1. Negative Transform")
+        print("2. Threshold Transform")
+        print("3. Logarithmic Transform")
+        print("4. Median Transform")
+        print("5. Histogram Equalizing")
+        print("6. Roberts Operator")
+        print("7. Sobel Operator")
+        print("8. Prewitt Operator")
+        print("9. Canny Edge Detection")
+        print("10. Otsu Threshold")
+        
+    
+        choice = int(input("\nNhập số tương ứng với phương thức bạn muốn sử dụng: "))
 
-        thresholded_image = image_processor.threshold_transform(128)
-        thresholded_image.show()
-
-        logarithmic_image = image_processor.logarithmic_transform()
-        logarithmic_image.show()
-
-        median_filtered_image = image_processor.median_transform(3)
-        median_filtered_image.show()
-
-        roberts_image = image_processor.roberts_operator()
-        roberts_image.show()
-
-        sobel_image = image_processor.sobel_operator()
-        sobel_image.show()
-
-        prewitt_image = image_processor.prewitt_operator()
-        prewitt_image.show()
-
-        edges_image = image_processor.canny_edge_detection()
-        edges_image.show()
-
-        otsu_image = image_processor.otsu_threshold()
-        otsu_image.show()
-
-        hist_equalized_image = image_processor.histogram_equalizing()
-        hist_equalized_image.show()
+        if choice == 1:
+            result_image = image_processor.negative_transform()
+        elif choice == 2:
+            result_image = image_processor.threshold_transform(128)
+        elif choice == 3:
+            result_image = image_processor.logarithmic_transform()
+        elif choice == 4:
+            result_image = image_processor.median_transform(3)
+        elif choice == 5:
+            result_image = image_processor.histogram_equalizing()
+        elif choice == 6:
+            result_image = image_processor.roberts_operator()
+        elif choice == 7:
+            result_image = image_processor.sobel_operator()
+        elif choice == 8:
+            result_image = image_processor.prewitt_operator()
+        elif choice == 9:
+            result_image = image_processor.canny_edge_detection()
+        elif choice == 10:
+            result_image = image_processor.otsu_threshold()
+        result_image.show()
 
     except ValueError as e:
         print(f"Error: {e}")
